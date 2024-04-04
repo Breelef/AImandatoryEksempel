@@ -1,1 +1,6 @@
-https://docs.google.com/document/d/1qyCLZFUQgBhaup6P_ESq8q9gYVs8lUA9ToTPEL56DSQ
+The coefficients for each feature are as follows:
+Weight: -0.00275542. This indicates that an increase in weight is associated with a decrease in kilometers per liter, holding other factors constant.
+Horsepower: -0.00374384. Similar to weight, an increase in horsepower is associated with a decrease in kilometers per liter.
+Model Year: 0.32273381. An increase in the model year (i.e., newer cars) is associated with an increase in kilometers per liter, holding other factors constant.
+The intercept is -5.945442231020824, but it's more informative to focus on the coefficients when interpreting the influence of each feature on the kilometers per liter.
+In summary, the model suggests that newer cars tend to be more fuel-efficient, while increases in weight and horsepower are associated with decreases in fuel efficiency. These insights can help in understanding the relationships between these features and the fuel efficiency of cars. If you have any more questions or need further assistance with your assignment, feel free to ask!
