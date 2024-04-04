@@ -5,11 +5,13 @@ import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, Input
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
+from sklearn.metrics import r2_score
 
 df = pd.read_csv("cars.csv")
 df.rename(columns={'mpg': 'kpl'}, inplace=True)
-df['kpl'] = df['kpl'] * 0.4
+df['kpl'] = df['kpl'] * 0.425
 
 numeric_columns = df.columns.difference(['car name'])
 
@@ -21,8 +23,8 @@ df.replace('?', np.nan, inplace=True)
 
 df.fillna(df.mean(), inplace=True)
 
-fig, ax = plt.subplots()
-fig.subplots_adjust(hspace=0.8, wspace=0.8, left=0.2, right=1.5)
+fig, ax = plt.subplots(figsize=(14, 4))  # Adjust the figsize parameter as needed
+
 plt.xticks([], [])
 plt.yticks([], [])
 
@@ -37,63 +39,102 @@ description = (
     "2: Made in Europe\n"
     "3: Made in Asia"
 )
-plt.figtext(1.52, 0.5, description, fontsize=10, ha="left")
+plt.figtext(0.9, 0.5, description, fontsize=10, ha="left")
 
 plt.show()
 
 average_score = df.iloc[:, 0].mean()
-print(average_score)
+
 
 
 def categorize_kpl(kpl):
     if kpl > average_score:
-        return "high"
+        return f"which is lower than average fuel consumption of {average_score:.2f} KPL and/or {average_score / 0.425:.2f} MPG"
     else:
-        return "low"
+        return f"which is higher than average fuel consumption of {average_score:.2f} KPL and/or {average_score / 0.425:.2f} MPG"
 
 
-# Apply the function to create categorical labels
-df['kpl_category'] = df['kpl'].apply(categorize_kpl)
+X = df.drop(columns=["kpl", "car name"])
+y = df["kpl"] 
 
-# Separate input features and target variable
-X = df.drop(columns=["kpl", "kpl_category", "car name"])  # Drop mpg, mpg_category, and car name
-y = df["kpl_category"]  # Target variable is mpg_category
 
-# Perform feature scaling
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
-# Encode categorical labels
-label_encoder = LabelEncoder()
-y_encoded = label_encoder.fit_transform(y)
 
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_encoded, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-# Build the model
 model = Sequential([
-    Dense(64, activation='relu', input_shape=(X_train.shape[1],)),
+    Dense(7, activation='relu', input_shape=(X_train.shape[1],)),
     Dense(32, activation='relu'),
     Dense(16, activation='relu'),
-    Dense(1, activation='sigmoid')  # Output layer with sigmoid activation for binary classification
+    Dense(1, activation='linear')
 ])
 
-# Compile the model
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+adam = Adam(learning_rate=0.008)
 
-# Train the model
+model.compile(optimizer=adam, loss='mean_squared_error', metrics=['mse'])
+
+
 model.fit(X_train, y_train, epochs=100, batch_size=32, verbose=1)
 
-# Evaluate the model
-loss, accuracy = model.evaluate(X_test, y_test)
-print("Test Loss:", loss)
-print("Test Accuracy:", accuracy)
+y_pred = model.predict(X_test)
 
-# Predict for new data (Cylinders, Displacement,Horsepower, Weight, acceleration, origin)
-new_data = [[4, 97, 88, 2130, 14.5, 70, 3]]  # Example new data point
+
+
+loss, mse = model.evaluate(X_test, y_test)
+print("Test Loss:", loss)
+print("Test MSE:", mse)
+r2 = r2_score(y_test, y_pred)
+print("R^2 Score:", r2)
+print("Accuracy:" r2*100)
+
+#----------------------------PREDICTION CAR-------------------------
+cylinders = 8
+displacement = 307
+horsepower = 130
+weight = 3504
+acceleration = 12
+model_year = 70
+origin = "USA"
+number_origin = 0
+
+match origin:
+            case "USA": number_origin = 1
+            case "EUROPE": number_origin = 2
+            case "ASIA": number_origin = 3
+
+new_data = [[cylinders, displacement, horsepower, weight, acceleration, model_year, number_origin]]
+#----------------------------PREDICTION CAR-------------------------
 
 new_data_scaled = scaler.transform(new_data)
 prediction = model.predict(new_data_scaled)
-predicted_label = label_encoder.inverse_transform(prediction.astype(int))
-print("Predicted kpl Category for new data:", predicted_label)
-# 0 = Low (Under 9,4 KPL(average)) 1 = High(Over 9,4 KPL)
+print("Predicted kpl for new data:", prediction[0][0])
+
+class Car:
+    def __init__(self, kpl, cylinders, displacement, horsepower, weight, acceleration, model_year, origin):
+        self.kpl = kpl
+        self.cylinders = cylinders
+        self.displacement = displacement
+        self.horsepower = horsepower
+        self.weight = weight
+        self.acceleration = acceleration
+        self.model_year = model_year
+        match origin:
+            case 1: self.origin = "USA"
+            case 2: self.origin = "EUROPE"
+            case 3: self.origin = "ASIA"
+
+car = Car(kpl=prediction[0][0], cylinders=new_data[0][0], displacement=new_data[0][1], 
+          horsepower=new_data[0][2], weight=new_data[0][3], acceleration=new_data[0][4], 
+          model_year=new_data[0][5], origin=new_data[0][6])
+
+print(f"Predict car: \n\n"
+      f"Cylinders: {car.cylinders}\n"
+      f"Displacement: {car.displacement}\n"
+      f"Horsepower: {car.horsepower}\n"
+      f"Weight: {car.weight}\n"
+      f"Acceleration: {car.acceleration}\n"
+      f"Model year: {car.model_year}\n"
+      f"Origin: {car.origin}\n"
+      f"Predicted Kpl: {car.kpl:.2f}, and/or {car.kpl / 0.425:.2f} in mpg {categorize_kpl(car.kpl)}")
