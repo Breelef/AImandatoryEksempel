@@ -8,6 +8,12 @@ from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.optimizers import Adam
 from sklearn.metrics import r2_score
+import tensorflow as tf
+import warnings
+warnings.filterwarnings("ignore")
+
+
+tf.get_logger().setLevel('ERROR') #Only log important errors
 
 df = pd.read_csv("cars.csv")
 df.rename(columns={'mpg': 'kpl'}, inplace=True)
@@ -41,7 +47,7 @@ description = (
 )
 plt.figtext(0.9, 0.5, description, fontsize=10, ha="left")
 
-plt.show()
+#plt.show()
 
 average_score = df.iloc[:, 0].mean()
 
@@ -61,56 +67,66 @@ y = df["kpl"]
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
+total_predicted = 0
 
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+for i in range(5):
 
-model = Sequential([
-    Dense(7, activation='relu', input_shape=(X_train.shape[1],)),
-    Dense(32, activation='relu'),
-    Dense(16, activation='relu'),
-    Dense(1, activation='linear')
-])
+    X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
 
-adam = Adam(learning_rate=0.008)
+    model = Sequential([
+        Dense(7, activation='relu', input_shape=(X_train.shape[1],)),
+        Dense(32, activation='relu'),
+        Dense(16, activation='relu'),
+        Dense(1, activation='linear')
+    ])
 
-model.compile(optimizer=adam, loss='mean_squared_error', metrics=['mse'])
+    adam = Adam(learning_rate=0.008)
 
-
-model.fit(X_train, y_train, epochs=100, batch_size=32, verbose=1)
-
-y_pred = model.predict(X_test)
+    model.compile(optimizer=adam, loss='mean_squared_error', metrics=['mse'])
 
 
+    model.fit(X_train, y_train, epochs=100, batch_size=32, verbose=0)
 
-loss, mse = model.evaluate(X_test, y_test)
-print("Test Loss:", loss)
-print("Test MSE:", mse)
-r2 = r2_score(y_test, y_pred)
-print("R^2 Score:", r2)
-print("Accuracy:" r2*100)
+    y_pred = model.predict(X_test)
 
-#----------------------------PREDICTION CAR-------------------------
-cylinders = 8
-displacement = 307
-horsepower = 130
-weight = 3504
-acceleration = 12
-model_year = 70
-origin = "USA"
-number_origin = 0
 
-match origin:
-            case "USA": number_origin = 1
-            case "EUROPE": number_origin = 2
-            case "ASIA": number_origin = 3
 
-new_data = [[cylinders, displacement, horsepower, weight, acceleration, model_year, number_origin]]
-#----------------------------PREDICTION CAR-------------------------
+    loss, mse = model.evaluate(X_test, y_test)
+    print("Test Loss:", loss)
+    print("Test MSE:", mse)
+    r2 = r2_score(y_test, y_pred)
+    print("R^2 Score:", r2)
+    print("Accuracy:", r2*100)
 
-new_data_scaled = scaler.transform(new_data)
-prediction = model.predict(new_data_scaled)
-print("Predicted kpl for new data:", prediction[0][0])
+    #----------------------------PREDICTION CAR-------------------------
+    cylinders = 8
+    displacement = 320
+    horsepower = 144
+    weight = 3360
+    acceleration = 16
+    model_year = 70
+    origin = "USA"
+    number_origin = 0
 
+    match origin:
+                case "USA": number_origin = 1
+                case "EUROPE": number_origin = 2
+                case "ASIA": number_origin = 3
+
+    new_data = [[cylinders, displacement, horsepower, weight, acceleration, model_year, number_origin]]
+    #----------------------------PREDICTION CAR-------------------------
+
+    new_data_scaled = scaler.transform(new_data)
+
+    
+
+    prediction = model.predict(new_data_scaled)
+    print("Predicted kpl for new data:", prediction[0][0])
+    total_predicted += prediction
+
+
+print("Average prediction over 5 reruns of the model:", total_predicted/5)
+print("Average predicted over 5 reruns of the model:", (total_predicted / 5) / 0.425)
 class Car:
     def __init__(self, kpl, cylinders, displacement, horsepower, weight, acceleration, model_year, origin):
         self.kpl = kpl
