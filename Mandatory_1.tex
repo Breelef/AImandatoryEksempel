@@ -1,0 +1,172 @@
+\documentclass[a4paper, twocolumn]{article}
+
+\usepackage{hyperref}
+% you can switch between these two (and more) styles by commenting one out (use percentage)
+\usepackage[backend=biber]{biblatex}
+%\usepackage[backend=biber, style=authoryear-icomp]{biblatex}
+\addbibresource{./refs.bib}
+
+
+\usepackage{graphicx}
+
+\usepackage{caption} % Add this line to your preamble
+
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{gray}{0.9}
+
+% code listing: https://tex.stackexchange.com/questions/19004/how-to-format-an-inline-source-code
+\lstset{
+    showstringspaces=false,
+    basicstyle=\ttfamily,
+    keywordstyle={blue},
+    commentstyle=\color[gray]{0.6}
+    stringstyle=\color[RGB]{255, 150, 75}
+}
+\newcommand{\inlinecode}[2]{\colorbox{lightgray}{\lstinline[language=#1]$#2$}}
+
+\author{Emil Vinther, Magnus Dalkvist, Naomi Rasmussen, Niklas Faurholt}
+\title{AAI Mandatory Assignment 1}
+
+
+
+\begin{document}
+
+\twocolumn[
+    \begin{@twocolumnfalse}
+        \maketitle
+        \begin{abstract}
+            \begin{quote}
+            This paper investigates predictive modeling of car fuel consumption using the "cars.csv" dataset. Through regression and logistic regression analyses, we address three key research questions aimed at understanding the influence of various automotive attributes on Kilometers Per Liter (KPL). Leveraging neural network models, we assess the impact of cylinders, displacement, horsepower, weight, acceleration, model year, and origin on fuel efficiency. Our findings reveal that adjusting acceleration has the most significant effect on KPL, followed by horsepower, displacement, weight, and cylinders, respectively. These insights provide valuable guidance for optimizing automotive performance and market strategies.
+            \end{quote}
+        \end{abstract}
+    \end{@twocolumnfalse}
+    \vspace{1cm}
+]
+
+
+\section{Introduction\label{sec:Introduction}}
+
+This paper explores predictive modeling of cars using the "cars.csv" dataset. Mandatory Assignment 1 tasks us with formulating regression and logistic regression problems, designing and fine-tuning models, and constructing a compact research article. From the dataset's attributes, we aim to gain insights in automotive performance and market trends.
+
+
+\subsection{Research Question\label{sec:Research Question}}
+
+\begin{itemize}
+\item[\textbf{Q.1}]
+To what degree does cylinders, displacement, horsepowers, weight, acceleration, model year and origin respectively affect the KPL?
+\end{itemize}
+
+\begin{itemize}
+\item[\textbf{Q.2}]
+Can a model predict an imaginary cars fuel consumption and categorize it into high or low compared to the fuel KPL mean?
+\end{itemize}
+
+\begin{itemize}
+\item[\textbf{Q.3}]
+By tuning the different values, which one has the biggest impact on the KPL value?
+\end{itemize}
+
+
+
+\section{Methods\label{sec:Methods}}
+
+
+By using a neural network, we will construct a model that with a certain accuracy can predict how much fuel a car uses based on its performance characteristics. Based on this model we plan on finding out what characteristics has the biggest impact on the fuel consumption by tuning each individual value by the same percentage.
+\autocite{colab_link}
+
+
+\section{Analysis\label{sec:Analysis}}
+
+In the pursuit of finding the characteristic that has the biggest impact on KPL(Kilometer per liter). We found the mean of the individual characteristics and found the nearest amount that could be divided  into an 7/8 of the original amount to see what a 1/8's reduction in the value would result in.
+We then did 5 rounds of 100 epochs on the model with an average of 90\% accuracy with each iteration. With each round of 5 iterations, we tuned each characteristic and removed 12,5\% of the original amount and observed the expected kpl that the model would produce.
+\autocite{githubmodel1}
+
+
+
+
+\section{Findings\label{sec:Findings}}
+
+In table \ref{table:Likert scale and scoring} we have listed an initial car and five fine tuned cars with their respectable KPL and MPG values.
+
+\begin{table}[!ht]
+    \centering
+    \footnotesize
+    \begin{tabular}{r | l}
+        \hline\hline
+        Characteristic & Value \\ [0.5ex] % inserts table %heading
+        \hline
+        \multicolumn{2}{c}{\textbf{Initial imaginary car}} \\
+        \hline
+        Cylinders & 8 \\
+        Displacement & 320 \\
+        Horsepower & 144 \\
+        Weight & 3360 \\
+        Acceleration & 16 \\ [1ex]
+        \hline
+        \multicolumn{2}{c}{\textbf{KPL: 5,76 / MPG: 13,71 }} \\
+        \hline\hline
+        \multicolumn{2}{c}{\textbf{fine tuned cylinders}} \\
+        \hline
+        Cylinders & 7\\
+        Displacement & 320 \\
+        Horsepower & 144 \\
+        Weight & 3360 \\
+        Acceleration & 16 \\ [1ex]
+        \hline
+        \multicolumn{2}{c}{\textbf{KPL: 5,97 / MPG: 14,06 }} \\
+        \hline\hline
+        \multicolumn{2}{c}{\textbf{fine tuned displacement}} \\
+        \hline
+        Cylinders & 8\\
+        Displacement & 280 \\
+        Horsepower & 144 \\
+        Weight & 3360 \\
+        Acceleration & 16 \\ [1ex]
+        \hline
+        \multicolumn{2}{c}{\textbf{KPL: 6,18 / MPG: 14,54 }} \\
+        \hline\hline
+        \multicolumn{2}{c}{\textbf{fine tuned horsepower}} \\
+        \hline
+        Cylinders & 8\\
+        Displacement & 320 \\
+        Horsepower & 126 \\
+        Weight & 3360 \\
+        Acceleration & 16 \\ [1ex]
+        \hline
+        \multicolumn{2}{c}{\textbf{KPL: 6,38 / MPG: 15,01 }} \\
+        \hline\hline
+        \multicolumn{2}{c}{\textbf{fine tuned weight}} \\
+        \hline
+        Cylinders & 8\\
+        Displacement & 320 \\
+        Horsepower & 144 \\
+        Weight & 2940 \\
+        Acceleration & 16 \\ [1ex]
+        \hline
+        \multicolumn{2}{c}{\textbf{KPL: 6,00 / MPG: 14,13 }} \\
+        \hline\hline
+        \multicolumn{2}{c}{\textbf{fine tuned acceleration}} \\
+        \hline
+        Cylinders & 8\\
+        Displacement & 320 \\
+        Horsepower & 144 \\
+        Weight & 3360 \\
+        Acceleration & 14 \\ [1ex]
+        \hline
+        \multicolumn{2}{c}{\textbf{KPL: 6,55 / MPG: 15,42 }} \\
+    \end{tabular}
+    \caption{Likert scale and scoring}
+    \label{table:Likert scale and scoring}
+\end{table}
+
+
+\section{Conclusion\label{sec:Conclusion}}
+
+From the tuning of the values on the imaginary car by 12,5\% evidently proved that changing the acceleration on a car, is going to impact a cars KPL the most. Thereafter it follows the order: horsepower -> displacement -> weight -> cylinders.
+
+
+\printbibliography
+
+\end{document}
+
