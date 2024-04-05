@@ -15,17 +15,10 @@ data_cleaned.isnull().sum(), data_cleaned.head()
 features = data_cleaned[['weight', 'horsepower', 'model year']]
 target = data_cleaned['kpl']
 
-X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+X_train, y_train = train_test_split(features, target, test_size=0.2, random_state=42)
 model = LinearRegression()
 model.fit(X_train, y_train)
 
-predictions = model.predict(X_test)
-
-mse = mean_squared_error(y_test, predictions)
-print("Mean Squared Error:", mse)
-
-r2 = r2_score(y_test, predictions)
-print("R-squared:", r2)
 
 print("Coefficients:", model.coef_)
 
